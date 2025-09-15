@@ -1,3 +1,5 @@
+## RunFunctor
+
 A modern, Java‑based mini‑Prolog that blends declarative logic with controlled “imperative” steps. If you’re into logic programming, parsers, or backtracking engines, this is for you.
 
 Why it’s cool:
