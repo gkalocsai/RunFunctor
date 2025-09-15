@@ -8,24 +8,26 @@ import java.util.Map;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-        if (args.length != 2) {   // Check that we have exactly two arguments
-            System.out.println("Usage: java Main <knowledgebase_file> <query_file>");
+        if (args.length  == 0 || args.length > 2) {   // we have exactly one or two arguments
+            System.out.println("Usage: java -jar functor.jar <query_file> [<knowledgebase_file>] ");
             return;
         }
+        
         Program program = new Program();        
-        List<String> lines = Util.readFileWithoutComments(args[0]);          
+
+        if(args.length == 2) {
+        List<String> lines = Util.readFileWithoutComments(args[1]);          
             for (String csrc : lines) {   
                 Clause c = ClauseParser.parse(csrc);
                 program.add(c);
             }
-    
+        }
                
         Builtins builtins = new Builtins();
         Solver solver = new Solver(program, builtins);
         
-        List<String> lines2 = Util.readFileWithoutComments(args[1]);
+        List<String> lines2 = Util.readFileWithoutComments(args[0]);
         List<BodyElement> query = QueryParser.parse(lines2.get(0));
-        
         
         solver.solve(query, solution -> {
             Map<String, Term> visible = Solver.filterQueryVars(solution);
