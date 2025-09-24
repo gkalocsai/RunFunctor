@@ -13,10 +13,12 @@ public class Main {
             return;
         }
         
+      
         Program program = new Program();        
 
         if(args.length == 2) {
-        List<String> lines = Util.readFileWithoutComments(args[1]);          
+      
+        List<String> lines = Util.splitAndremoveComments(Util.readFileToString(args[1]));          
             for (String csrc : lines) {   
                 Clause c = ClauseParser.parse(csrc);
                 program.add(c);
@@ -26,7 +28,12 @@ public class Main {
         Builtins builtins = new Builtins();
         Solver solver = new Solver(program, builtins);
         
-        List<String> lines2 = Util.readFileWithoutComments(args[0]);
+        String code = Util.readFileToString(args[0]);
+        code=Namespace.renameCollidingVariables(code);
+        
+        List<String> lines2 = Util.splitAndremoveComments(code);
+        
+        
         List<BodyElement> query = QueryParser.parse(lines2.get(0));
         
         solver.solve(query, solution -> {

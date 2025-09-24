@@ -1,22 +1,25 @@
 package hu.kg.runfunctor.core;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 final class Util {
     private Util() {}
 
-    public static List<String> readFileWithoutComments(String filePath) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath)));
+    public static List<String> splitAndremoveComments(String whole) throws IOException {
+        
+    
+    	List<String> lines=splitByNewLine(whole);
+        
         List<String> linesWithOutComments = new ArrayList<>();
-
-        String line;
         boolean isMultilineComment = false;
-        while ((line = reader.readLine()) != null) {
+        for ( String line :lines) {
             int commentIndex = line.indexOf("//");  // Find the index of "//" in each line
             
             if (!isMultilineComment && commentIndex != -1) {  // If there is a "//", remove the part after it from the line
@@ -50,7 +53,7 @@ final class Util {
             }
         }
         
-        reader.close();
+        
         return linesWithOutComments;
     }
     static String escapeString(String s) {
@@ -80,5 +83,43 @@ final class Util {
         if (esc) sb.append('\\'); // trailing backslash literal
         return sb.toString();
     }
+    public static String readFileToString(String filePath) {
+        try  {
+            Path path = Paths.get(filePath);
+            Stream<String> lines = Files.lines(path);
+            String data = lines.collect(Collectors.joining("\n"));
+            lines.close();
+            return data;
+         } catch (IOException e)  {
+             e.printStackTrace();
+             return null;
+         }
+     }
+
+    public static List<String> splitByNewLine(String input) {
+        List<String> lines = new ArrayList<>();
+        
+        int startIndex = 0;
+        for (int currentIndex = 0; currentIndex < input.length(); ++currentIndex) {
+            if (input.charAt(currentIndex) == '\n' || input.charAt(currentIndex) == '\r') {
+                // If it's a newline character, add the line to our list and move start index
+                lines.add(input.substring(startIndex, currentIndex));
+                startIndex = currentIndex + 1;
+                
+                // Check for Windows style line endings ("\r\n")
+                if (currentIndex + 1 < input.length() && input.charAt(currentIndex) == '\r' && input.charAt(currentIndex + 1) == '\n') {
+                    ++startIndex;  // Skip the next character as it is a part of "\r\n" pair
+                }
+            }
+        }
+        
+        // Add last line
+        if (startIndex < input.length()) {
+            lines.add(input.substring(startIndex));
+        }
+        
+        return lines;
+    }
+    
 }
 
